@@ -8,11 +8,26 @@ import '../css/MovieDetails.css';
 const MovieDetails = () => {
     const { id } = useParams();
     const navigate = useNavigate();
-    const { updateWatchListStatus, getMovieStatus } = useMovieContext();
+    const { favorites, updateWatchListStatus, updateWatchListRatingAndNotes, getMovieStatus } = useMovieContext();
     
     const [movie, setMovie] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+
+    const [ratingInput, setRatingInput] = useState("");
+    const [notesInput, setNotesInput] = useState("");
+
+    const currentFavItem = favorites.find(fav => fav.id === Number(id) || String(fav.id) === String(id));
+
+    useEffect(() => {
+        if (currentFavItem) {
+            setRatingInput(currentFavItem.rating !== null && currentFavItem.rating !== undefined ? String(currentFavItem.rating) : "");
+            setNotesInput(currentFavItem.notes || "");
+        } else {
+            setRatingInput("");
+            setNotesInput("");
+        }
+    }, [currentFavItem]);
 
     useEffect(() => {
         const loadMovieData = async () => {
@@ -74,6 +89,37 @@ const MovieDetails = () => {
         ? `https://image.tmdb.org/t/p/w500${movie.poster_path}` 
         : "https://via.placeholder.com/500x750?text=No+Image";
 
+    const handleSaveReview = async () => {
+        const ratingVal = ratingInput === "" ? null : parseFloat(ratingInput);
+        if (ratingVal !== null && (isNaN(ratingVal) || ratingVal < 1 || ratingVal > 10)) {
+            alert("Rating must be a number between 1.0 and 10.0");
+            return;
+        }
+        
+        const moviePayload = {
+            id: movie.id,
+            title: movie.title,
+            overview: movie.overview,
+            release_date: movie.release_date,
+            poster_path: movie.poster_path,
+            genres: movie.genres ? movie.genres.map(g => g.name) : [],
+            runtime: movie.runtime,
+        };
+
+        await updateWatchListRatingAndNotes(moviePayload, ratingVal, notesInput);
+        
+        const saveBtn = document.querySelector(".save-review-btn");
+        if (saveBtn) {
+            const originalText = saveBtn.innerText;
+            saveBtn.innerText = "Saved! ✓";
+            saveBtn.classList.add("saved");
+            setTimeout(() => {
+                saveBtn.innerText = originalText;
+                saveBtn.classList.remove("saved");
+            }, 2000);
+        }
+    };
+
     // Helper for formatting status display
     const formatStatusName = (status) => {
         if (status === 'COMPLETE') return 'Completed';
@@ -123,6 +169,15 @@ const MovieDetails = () => {
                                 </div>
                             </>
                         )}
+                        {currentStatus !== 'REMOVE' && currentFavItem && currentFavItem.rating !== null && currentFavItem.rating !== undefined && (
+                            <>
+                                <span className="meta-divider">|</span>
+                                <div className={`user-rating-badge-meta ${currentFavItem.rating >= 7.5 ? 'high-anim' : currentFavItem.rating <= 4.5 ? 'low-anim' : 'neutral-anim'}`}>
+                                    <FaStar />
+                                    <span>My Rating: {Number(currentFavItem.rating).toFixed(1)}</span>
+                                </div>
+                            </>
+                        )}
                     </div>
 
                     {movie.genres && movie.genres.length > 0 && (
@@ -154,6 +209,81 @@ const MovieDetails = () => {
                                 <option value="DROPPED">Dropped</option>
                             </select>
                         </div>
+
+                        {currentStatus !== 'REMOVE' && (
+                            <div className="review-section">
+                                <h3 className="review-section-title">My Review & Rating</h3>
+                                
+                                <div className="review-row">
+                                    <div className="rating-input-container">
+                                        <label className="input-label">My Rating (1.0 - 10.0)</label>
+                                        <div className="rating-input-wrapper">
+                                            <input 
+                                                type="number" 
+                                                min="1" 
+                                                max="10" 
+                                                step="0.1" 
+                                                placeholder="N/A"
+                                                value={ratingInput}
+                                                onChange={(e) => setRatingInput(e.target.value)}
+                                                className="rating-number-input"
+                                            />
+                                            <input 
+                                                type="range" 
+                                                min="1" 
+                                                max="10" 
+                                                step="0.1" 
+                                                value={ratingInput || 5.0} 
+                                                onChange={(e) => setRatingInput(e.target.value)}
+                                                className="rating-slider-input"
+                                            />
+                                        </div>
+                                    </div>
+                                    
+                                    {ratingInput && (
+                                        <div className="rating-animation-container">
+                                            {Number(ratingInput) >= 7.5 ? (
+                                                <div className="rating-badge-animated high" title="Highly Recommended!">
+                                                    <FaStar className="star-spin-pulse" />
+                                                    <span>{Number(ratingInput).toFixed(1)}</span>
+                                                    <span className="rating-label">Epic!</span>
+                                                </div>
+                                            ) : Number(ratingInput) <= 4.5 ? (
+                                                <div className="rating-badge-animated low" title="Disappointing...">
+                                                    <span className="shivering-emoji">😢</span>
+                                                    <span>{Number(ratingInput).toFixed(1)}</span>
+                                                    <span className="rating-label">Weak</span>
+                                                </div>
+                                            ) : (
+                                                <div className="rating-badge-animated neutral" title="Decent watch">
+                                                    <FaStar className="star-breath" />
+                                                    <span>{Number(ratingInput).toFixed(1)}</span>
+                                                    <span className="rating-label">Decent</span>
+                                                </div>
+                                            )}
+                                        </div>
+                                    )}
+                                </div>
+
+                                <div className="notes-input-container">
+                                    <label className="input-label">Review Notes</label>
+                                    <textarea 
+                                        placeholder="Add your thoughts about the movie..."
+                                        value={notesInput}
+                                        onChange={(e) => setNotesInput(e.target.value)}
+                                        rows="3"
+                                        className="notes-textarea"
+                                    />
+                                </div>
+
+                                <button 
+                                    onClick={handleSaveReview}
+                                    className="save-review-btn"
+                                >
+                                    Save Review & Rating
+                                </button>
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>

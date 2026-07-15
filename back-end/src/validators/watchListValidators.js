@@ -9,13 +9,20 @@ const addToWatchListSchema = z.object({
       },
     })
     .optional(),
-  rating: z.coerce
-    .number()
-    .int("Rating must be an full number")
-    .min(1)
-    .max(10)
-    .optional(),
-    notes: z.string().optional(),
+  rating: z.preprocess(
+    (val) => (val === "" || val === null ? null : val),
+    z.union([
+      z.null(),
+      z.coerce.number().min(1).max(10)
+    ]).optional()
+  ),
+  notes: z.preprocess(
+    (val) => (val === "" || val === null ? null : val),
+    z.union([
+      z.null(),
+      z.string()
+    ]).optional()
+  ),
 });
 
 const updateWatchListSchema = z.object({
@@ -26,13 +33,20 @@ const updateWatchListSchema = z.object({
       },
     })
     .optional(),
-  rating: z.coerce
-    .number()
-    .int("Rating must be an full number")
-    .min(1)
-    .max(10)
-    .optional(),
-  notes: z.string().optional(),
+  rating: z.preprocess(
+    (val) => (val === "" || val === null ? null : val),
+    z.union([
+      z.null(),
+      z.coerce.number().min(1).max(10)
+    ]).optional()
+  ),
+  notes: z.preprocess(
+    (val) => (val === "" || val === null ? null : val),
+    z.union([
+      z.null(),
+      z.string()
+    ]).optional()
+  ),
 });
 
 module.exports = { addToWatchListSchema, updateWatchListSchema };

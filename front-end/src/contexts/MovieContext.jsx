@@ -34,6 +34,8 @@ export const MovieProvider = ({ children }) => {
                                 poster_path: item.movie.posterUrl,
                                 release_date: `${item.movie.releaseYear}-01-01`, // Format back to standard date
                                 status: item.status, // Planned, Watching, Complete, Dropped
+                                rating: item.rating,
+                                notes: item.notes,
                             };
                         });
                         setFavorites(syncedFavs);
@@ -74,6 +76,8 @@ export const MovieProvider = ({ children }) => {
                 poster_path: movie.poster_path,
                 release_date: movie.release_date,
                 status: status,
+                rating: null,
+                notes: null,
             };
 
             // Update UI immediately (optimistic update)
@@ -279,6 +283,75 @@ export const MovieProvider = ({ children }) => {
         }
     }
 
+    const updateWatchListRatingAndNotes = async (movie, rating, notes) => {
+        const isObject = typeof movie === 'object' && movie !== null;
+        const targetId = isObject ? movie.id : movie;
+
+        if (user && token) {
+            // Find existing
+            const targetFav = favorites.find(fav => {
+                if (isObject) {
+                    const favYear = fav.release_date ? parseInt(fav.release_date.split("-")[0]) : null;
+                    const movieYear = movie.release_date ? parseInt(movie.release_date.split("-")[0]) : null;
+                    return fav.id === movie.id || 
+                           fav.dbMovieId === movie.id ||
+                           (fav.title?.toLowerCase() === movie.title?.toLowerCase() && favYear === movieYear);
+                }
+                return fav.id === targetId || fav.dbMovieId === targetId;
+            });
+
+            if (targetFav) {
+                const oldRating = targetFav.rating;
+                const oldNotes = targetFav.notes;
+
+                // Update UI immediately (optimistic update)
+                setFavorites(prev => prev.map(item => 
+                    item.dbWatchListId === targetFav.dbWatchListId 
+                        ? { ...item, rating: rating, notes: notes }
+                        : item
+                ));
+
+                // If it is a real DB ID and not temporary, call the API in the background
+                if (targetFav.dbWatchListId && !targetFav.dbWatchListId.startsWith('temp-')) {
+                    try {
+                        const response = await fetch(`${API_URL}/watchList/update/${targetFav.dbWatchListId}`, {
+                            method: "PUT",
+                            headers: {
+                                "Content-Type": "application/json",
+                                "Authorization": `Bearer ${token}`
+                            },
+                            body: JSON.stringify({
+                                rating: rating === "" || rating === null ? null : Number(rating),
+                                notes: notes === "" || notes === null ? null : notes
+                            })
+                        });
+                        const result = await response.json();
+                        if (!response.ok) {
+                            throw new Error(result.error || "Failed to update review");
+                        }
+                    } catch (error) {
+                        console.error("Error updating watchlist rating/notes:", error);
+                        // Revert optimistic update
+                        setFavorites(prev => prev.map(item => 
+                            item.dbWatchListId === targetFav.dbWatchListId 
+                                ? { ...item, rating: oldRating, notes: oldNotes }
+                                : item
+                        ));
+                        alert(`Error: ${error.message}`);
+                    }
+                }
+            }
+        } else {
+            // Local fallback
+            const exists = favorites.some(fav => fav.id === targetId);
+            if (exists) {
+                setFavorites(prev => prev.map(item => 
+                    item.id === targetId ? { ...item, rating, notes } : item
+                ));
+            }
+        }
+    }
+
     const isFavorites = (movieOrId) => {
         if (!movieOrId) return false;
         
@@ -325,6 +398,7 @@ export const MovieProvider = ({ children }) => {
         addToFavorites,
         removeFromFavorites,
         updateWatchListStatus,
+        updateWatchListRatingAndNotes,
         isFavorites,
         getMovieStatus
     }
