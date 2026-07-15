@@ -64,6 +64,21 @@ export const MovieProvider = ({ children }) => {
 
     const addToFavorites = async (movie, status = "PLANNED") => {
         if (user && token) {
+            const tempId = `temp-${Date.now()}`;
+            const newMovieItem = {
+                id: movie.id, // Keep TMDB ID for toggle UI match
+                dbMovieId: movie.dbMovieId || String(movie.id),
+                dbWatchListId: tempId,
+                title: movie.title,
+                overview: movie.overview,
+                poster_path: movie.poster_path,
+                release_date: movie.release_date,
+                status: status,
+            };
+
+            // Update UI immediately (optimistic update)
+            setFavorites(prev => [...prev, newMovieItem]);
+
             try {
                 // Step A: Ensure movie exists in local database
                 const releaseYear = movie.release_date 
@@ -114,20 +129,17 @@ export const MovieProvider = ({ children }) => {
 
                 const watchListItem = watchlistResult.data.addMovie;
 
-                // Step C: Update local React state
-                setFavorites(prev => [...prev, {
-                    id: movie.id, // Keep TMDB ID for toggle UI match
-                    dbMovieId: dbMovie.id,
-                    dbWatchListId: watchListItem.id,
-                    title: movie.title,
-                    overview: movie.overview,
-                    poster_path: movie.poster_path,
-                    release_date: movie.release_date,
-                    status: status,
-                }]);
+                // Update local React state with actual IDs from the database
+                setFavorites(prev => prev.map(item => 
+                    item.dbWatchListId === tempId
+                        ? { ...item, dbMovieId: dbMovie.id, dbWatchListId: watchListItem.id }
+                        : item
+                ));
 
             } catch (error) {
                 console.error("Error adding to database watchlist:", error);
+                // Revert optimistic update
+                setFavorites(prev => prev.filter(item => item.dbWatchListId !== tempId));
                 alert(`Error adding to favorites: ${error.message}`);
             }
         } else {
@@ -141,41 +153,50 @@ export const MovieProvider = ({ children }) => {
         const targetId = isObject ? movieOrId.id : movieOrId;
 
         if (user && token) {
-            try {
-                // Find matching item in local state
-                const targetFav = favorites.find(fav => {
-                    if (isObject) {
-                        const favYear = fav.release_date ? parseInt(fav.release_date.split("-")[0]) : null;
-                        const movieYear = movieOrId.release_date ? parseInt(movieOrId.release_date.split("-")[0]) : null;
-                        return fav.id === movieOrId.id || 
-                               (fav.title?.toLowerCase() === movieOrId.title?.toLowerCase() && favYear === movieYear);
-                    }
-                    return fav.id === targetId || fav.dbMovieId === targetId;
-                });
-
-                if (!targetFav || !targetFav.dbWatchListId) {
-                    console.warn("Could not find database watchlist ID for movie:", movieOrId);
-                    // Just filter it out from state as a fallback
-                    setFavorites(prev => prev.filter(item => item.id !== targetId && item.dbMovieId !== targetId));
-                    return;
+            // Find matching item in local state
+            const targetFav = favorites.find(fav => {
+                if (isObject) {
+                    const favYear = fav.release_date ? parseInt(fav.release_date.split("-")[0]) : null;
+                    const movieYear = movieOrId.release_date ? parseInt(movieOrId.release_date.split("-")[0]) : null;
+                    return fav.id === movieOrId.id || 
+                           (fav.title?.toLowerCase() === movieOrId.title?.toLowerCase() && favYear === movieYear);
                 }
+                return fav.id === targetId || fav.dbMovieId === targetId;
+            });
 
-                const response = await fetch(`${API_URL}/watchList/delete/${targetFav.dbWatchListId}`, {
-                    method: "DELETE",
-                    headers: {
-                        "Authorization": `Bearer ${token}`
-                    }
-                });
+            if (!targetFav) {
+                console.warn("Could not find matching item to remove:", movieOrId);
+                return;
+            }
 
-                const result = await response.json();
-                if (!response.ok) {
-                    throw new Error(result.error || "Failed to remove from watchlist");
+            // Update UI immediately (optimistic update)
+            setFavorites(prev => prev.filter(item => {
+                if (targetFav.dbWatchListId) {
+                    return item.dbWatchListId !== targetFav.dbWatchListId;
                 }
+                return item.id !== targetId && item.dbMovieId !== targetId;
+            }));
 
-                setFavorites(prev => prev.filter(item => item.dbWatchListId !== targetFav.dbWatchListId));
-            } catch (error) {
-                console.error("Error removing from database watchlist:", error);
-                alert(`Error removing from favorites: ${error.message}`);
+            // If it has a real DB ID and is not temporary, call the API in the background
+            if (targetFav.dbWatchListId && !targetFav.dbWatchListId.startsWith('temp-')) {
+                try {
+                    const response = await fetch(`${API_URL}/watchList/delete/${targetFav.dbWatchListId}`, {
+                        method: "DELETE",
+                        headers: {
+                            "Authorization": `Bearer ${token}`
+                        }
+                    });
+
+                    const result = await response.json();
+                    if (!response.ok) {
+                        throw new Error(result.error || "Failed to remove from watchlist");
+                    }
+                } catch (error) {
+                    console.error("Error removing from database watchlist:", error);
+                    // Revert optimistic update by adding the item back
+                    setFavorites(prev => [...prev, targetFav]);
+                    alert(`Error removing from favorites: ${error.message}`);
+                }
             }
         } else {
             // Local favorites flow
@@ -206,27 +227,40 @@ export const MovieProvider = ({ children }) => {
             });
 
             if (targetFav) {
-                try {
-                    const response = await fetch(`${API_URL}/watchList/update/${targetFav.dbWatchListId}`, {
-                        method: "PUT",
-                        headers: {
-                            "Content-Type": "application/json",
-                            "Authorization": `Bearer ${token}`
-                        },
-                        body: JSON.stringify({ status: newStatus })
-                    });
-                    const result = await response.json();
-                    if (!response.ok) {
-                        throw new Error(result.error || "Failed to update status");
+                const oldStatus = targetFav.status;
+
+                // Update UI immediately (optimistic update)
+                setFavorites(prev => prev.map(item => 
+                    item.dbWatchListId === targetFav.dbWatchListId 
+                        ? { ...item, status: newStatus }
+                        : item
+                ));
+
+                // If it is a real DB ID and not temporary, call the API in the background
+                if (targetFav.dbWatchListId && !targetFav.dbWatchListId.startsWith('temp-')) {
+                    try {
+                        const response = await fetch(`${API_URL}/watchList/update/${targetFav.dbWatchListId}`, {
+                            method: "PUT",
+                            headers: {
+                                "Content-Type": "application/json",
+                                "Authorization": `Bearer ${token}`
+                            },
+                            body: JSON.stringify({ status: newStatus })
+                        });
+                        const result = await response.json();
+                        if (!response.ok) {
+                            throw new Error(result.error || "Failed to update status");
+                        }
+                    } catch (error) {
+                        console.error("Error updating watchlist status:", error);
+                        // Revert optimistic update
+                        setFavorites(prev => prev.map(item => 
+                            item.dbWatchListId === targetFav.dbWatchListId 
+                                ? { ...item, status: oldStatus }
+                                : item
+                        ));
+                        alert(`Error: ${error.message}`);
                     }
-                    setFavorites(prev => prev.map(item => 
-                        item.dbWatchListId === targetFav.dbWatchListId 
-                            ? { ...item, status: newStatus }
-                            : item
-                    ));
-                } catch (error) {
-                    console.error("Error updating watchlist status:", error);
-                    alert(`Error: ${error.message}`);
                 }
             } else {
                 // First add to watchlist with this status
