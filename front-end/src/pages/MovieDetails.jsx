@@ -169,7 +169,7 @@ const MovieDetails = () => {
                                 </div>
                             </>
                         )}
-                        {currentStatus !== 'REMOVE' && currentFavItem && currentFavItem.rating !== null && currentFavItem.rating !== undefined && (
+                        {(currentStatus === 'COMPLETE' || currentStatus === 'DROPPED') && currentFavItem && currentFavItem.rating !== null && currentFavItem.rating !== undefined && (
                             <>
                                 <span className="meta-divider">|</span>
                                 <div className={`user-rating-badge-meta ${currentFavItem.rating >= 7.5 ? 'high-anim' : currentFavItem.rating <= 4.5 ? 'low-anim' : 'neutral-anim'}`}>
@@ -210,7 +210,7 @@ const MovieDetails = () => {
                             </select>
                         </div>
 
-                        {currentStatus !== 'REMOVE' && (
+                        {(currentStatus === 'COMPLETE' || currentStatus === 'DROPPED') && (
                             <div className="review-section">
                                 <h3 className="review-section-title">My Review & Rating</h3>
                                 
@@ -272,8 +272,14 @@ const MovieDetails = () => {
                                         value={notesInput}
                                         onChange={(e) => setNotesInput(e.target.value)}
                                         rows="3"
-                                        className="notes-textarea"
+                                        className={`notes-textarea ${!!(currentFavItem && currentFavItem.notes) ? 'disabled' : ''}`}
+                                        disabled={!!(currentFavItem && currentFavItem.notes)}
                                     />
+                                    {!!(currentFavItem && currentFavItem.notes) && (
+                                        <span className="notes-disabled-message">
+                                            Notes cannot be edited once saved. To change, you must remove the movie from your watchlist.
+                                        </span>
+                                    )}
                                 </div>
 
                                 <button 

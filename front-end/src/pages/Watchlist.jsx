@@ -111,13 +111,13 @@ const Watchlist = () => {
                                                     <h4 className="watchlist-card-title">{movie.title}</h4>
                                                     <div className="watchlist-card-metadata-row">
                                                         <span className="watchlist-card-meta">{releaseYear}</span>
-                                                        {movie.rating !== null && movie.rating !== undefined && (
+                                                        {(movie.status === 'COMPLETE' || movie.status === 'DROPPED') && movie.rating !== null && movie.rating !== undefined && (
                                                             <span className={`watchlist-card-rating-badge ${movie.rating >= 7.5 ? 'high-anim' : movie.rating <= 4.5 ? 'low-anim' : 'neutral-anim'}`}>
                                                                 ★ {Number(movie.rating).toFixed(1)}
                                                             </span>
                                                         )}
                                                     </div>
-                                                    {movie.notes && (
+                                                    {(movie.status === 'COMPLETE' || movie.status === 'DROPPED') && movie.notes && (
                                                         <p className="watchlist-card-note-snippet" title={movie.notes}>
                                                             {movie.notes.length > 40 ? `${movie.notes.substring(0, 37)}...` : movie.notes}
                                                         </p>
