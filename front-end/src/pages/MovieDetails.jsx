@@ -18,7 +18,11 @@ const MovieDetails = () => {
     const [notesInput, setNotesInput] = useState("");
 
     const currentFavItem = favorites.find(fav => fav.id === Number(id) || String(fav.id) === String(id));
-    const isSaved = !!(currentFavItem && (currentFavItem.rating !== null || currentFavItem.notes !== null));
+    const isSaved = !!(
+        currentFavItem && 
+        ((currentFavItem.rating !== null && currentFavItem.rating !== undefined) || 
+         (currentFavItem.notes !== null && currentFavItem.notes !== undefined && currentFavItem.notes !== ""))
+    );
 
     useEffect(() => {
         if (currentFavItem) {
