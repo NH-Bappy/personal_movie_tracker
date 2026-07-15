@@ -1,14 +1,19 @@
 const express = require('express');
 require('dotenv').config();
 const cors = require('cors');
-const {prisma , connectDB , disconnectDB} = require('../src/config/db')
+const { prisma, connectDB, disconnectDB } = require('./config/db');
 const movieRoutes = require('./routes/routeMovie');
 const authRoutes = require('./routes/authRoutes')
 const watchList = require('./routes/watchListRoutes')
 const app = express();
 
 app.use(cors({
-    origin: ['http://localhost:5173', 'http://127.0.0.1:5173'],
+    origin: [
+        process.env.CLIENT_URL,
+        'http://localhost:5173',
+        'http://127.0.0.1:5173',
+        'https://your-app.vercel.app'
+    ],
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization']
@@ -34,7 +39,7 @@ app.use("/watchList" , watchList)
 
 connectDB()
 
-const PORT = 5001;
+const PORT = process.env.PORT || 5001;
 const server = app.listen(PORT , () => {
     console.log(`server running on ${PORT}` );
 })
