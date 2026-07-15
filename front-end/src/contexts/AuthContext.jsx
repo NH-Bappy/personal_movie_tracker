@@ -9,7 +9,7 @@ export const AuthProvider = ({ children }) => {
     const [token, setToken] = useState(null);
     const [loading, setLoading] = useState(true);
 
-    const API_URL = "http://localhost:5001";
+    const API_URL = "https://personal-movie-tracker.onrender.com";
 
     useEffect(() => {
         const storedUser = localStorage.getItem("movie_user");
