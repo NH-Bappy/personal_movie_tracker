@@ -257,26 +257,23 @@
     border: 1px solid transparent;
 }
 
-.watchlist-card-rating-badge.high-anim {
+.watchlist-card-rating-badge.high-static {
     background: rgba(250, 204, 21, 0.15);
     color: #facc15;
     border-color: rgba(250, 204, 21, 0.3);
-    box-shadow: 0 0 8px rgba(250, 204, 21, 0.15);
-    animation: rating-glow-pulse 2s infinite alternate ease-in-out;
+    box-shadow: 0 0 8px rgba(250, 204, 21, 0.1);
 }
 
-.watchlist-card-rating-badge.low-anim {
+.watchlist-card-rating-badge.low-static {
     background: rgba(239, 68, 68, 0.15);
     color: #f87171;
     border-color: rgba(239, 68, 68, 0.3);
-    animation: rating-wobble-shake 2.5s infinite ease-in-out;
 }
 
-.watchlist-card-rating-badge.neutral-anim {
+.watchlist-card-rating-badge.neutral-static {
     background: rgba(16, 185, 129, 0.15);
     color: #34d399;
     border-color: rgba(16, 185, 129, 0.3);
-    animation: rating-pulse-breath 2.5s infinite alternate ease-in-out;
 }
 
 .watchlist-card-note-snippet {

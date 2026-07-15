@@ -18,6 +18,7 @@ const MovieDetails = () => {
     const [notesInput, setNotesInput] = useState("");
 
     const currentFavItem = favorites.find(fav => fav.id === Number(id) || String(fav.id) === String(id));
+    const isSaved = !!(currentFavItem && (currentFavItem.rating !== null || currentFavItem.notes !== null));
 
     useEffect(() => {
         if (currentFavItem) {
@@ -172,9 +173,8 @@ const MovieDetails = () => {
                         {(currentStatus === 'COMPLETE' || currentStatus === 'DROPPED') && currentFavItem && currentFavItem.rating !== null && currentFavItem.rating !== undefined && (
                             <>
                                 <span className="meta-divider">|</span>
-                                <div className={`user-rating-badge-meta ${currentFavItem.rating >= 7.5 ? 'high-anim' : currentFavItem.rating <= 4.5 ? 'low-anim' : 'neutral-anim'}`}>
-                                    <FaStar />
-                                    <span>My Rating: {Number(currentFavItem.rating).toFixed(1)}</span>
+                                <div className={`user-rating-badge-meta ${currentFavItem.rating >= 7.5 ? 'high-static' : currentFavItem.rating <= 4.5 ? 'low-static' : 'neutral-static'}`}>
+                                    <span>{currentFavItem.rating >= 7.5 ? '⭐' : currentFavItem.rating <= 4.5 ? '😢' : '👍'} My Rating: {Number(currentFavItem.rating).toFixed(1)}</span>
                                 </div>
                             </>
                         )}
@@ -214,80 +214,74 @@ const MovieDetails = () => {
                             <div className="review-section">
                                 <h3 className="review-section-title">My Review & Rating</h3>
                                 
-                                <div className="review-row">
-                                    <div className="rating-input-container">
-                                        <label className="input-label">My Rating (1.0 - 10.0)</label>
-                                        <div className="rating-input-wrapper">
-                                            <input 
-                                                type="number" 
-                                                min="1" 
-                                                max="10" 
-                                                step="0.1" 
-                                                placeholder="N/A"
-                                                value={ratingInput}
-                                                onChange={(e) => setRatingInput(e.target.value)}
-                                                className="rating-number-input"
-                                            />
-                                            <input 
-                                                type="range" 
-                                                min="1" 
-                                                max="10" 
-                                                step="0.1" 
-                                                value={ratingInput || 5.0} 
-                                                onChange={(e) => setRatingInput(e.target.value)}
-                                                className="rating-slider-input"
-                                            />
-                                        </div>
-                                    </div>
-                                    
-                                    {ratingInput && (
-                                        <div className="rating-animation-container">
-                                            {Number(ratingInput) >= 7.5 ? (
-                                                <div className="rating-badge-animated high" title="Highly Recommended!">
-                                                    <FaStar className="star-spin-pulse" />
-                                                    <span>{Number(ratingInput).toFixed(1)}</span>
-                                                    <span className="rating-label">Epic!</span>
-                                                </div>
-                                            ) : Number(ratingInput) <= 4.5 ? (
-                                                <div className="rating-badge-animated low" title="Disappointing...">
-                                                    <span className="shivering-emoji">😢</span>
-                                                    <span>{Number(ratingInput).toFixed(1)}</span>
-                                                    <span className="rating-label">Weak</span>
-                                                </div>
-                                            ) : (
-                                                <div className="rating-badge-animated neutral" title="Decent watch">
-                                                    <FaStar className="star-breath" />
-                                                    <span>{Number(ratingInput).toFixed(1)}</span>
-                                                    <span className="rating-label">Decent</span>
-                                                </div>
-                                            )}
-                                        </div>
-                                    )}
-                                </div>
-
-                                <div className="notes-input-container">
-                                    <label className="input-label">Review Notes</label>
-                                    <textarea 
-                                        placeholder="Add your thoughts about the movie..."
-                                        value={notesInput}
-                                        onChange={(e) => setNotesInput(e.target.value)}
-                                        rows="3"
-                                        className={`notes-textarea ${!!(currentFavItem && currentFavItem.notes) ? 'disabled' : ''}`}
-                                        disabled={!!(currentFavItem && currentFavItem.notes)}
-                                    />
-                                    {!!(currentFavItem && currentFavItem.notes) && (
+                                {isSaved ? (
+                                    <div className="saved-review-container">
+                                        {currentFavItem.rating !== null && currentFavItem.rating !== undefined && (
+                                            <div className="saved-rating-display">
+                                                <span className="saved-rating-label">My Rating:</span>
+                                                <span className={`saved-rating-badge ${currentFavItem.rating >= 7.5 ? 'high-static' : currentFavItem.rating <= 4.5 ? 'low-static' : 'neutral-static'}`}>
+                                                    {currentFavItem.rating >= 7.5 ? '⭐' : currentFavItem.rating <= 4.5 ? '😢' : '👍'} {Number(currentFavItem.rating).toFixed(1)} / 10.0
+                                                </span>
+                                            </div>
+                                        )}
+                                        {currentFavItem.notes && (
+                                            <div className="saved-notes-display">
+                                                <span className="saved-notes-label">My Notes:</span>
+                                                <p className="saved-notes-content">"{currentFavItem.notes}"</p>
+                                            </div>
+                                        )}
                                         <span className="notes-disabled-message">
-                                            Notes cannot be edited once saved. To change, you must remove the movie from your watchlist.
+                                            Reviews cannot be edited once saved. To change, you must remove the movie from your watchlist.
                                         </span>
-                                    )}
-                                </div>
+                                    </div>
+                                ) : (
+                                    <div className="edit-review-container">
+                                        <div className="review-row">
+                                            <div className="rating-input-container">
+                                                <label className="input-label">My Rating (1.0 - 10.0)</label>
+                                                <div className="rating-input-wrapper">
+                                                    <input 
+                                                        type="number" 
+                                                        min="1" 
+                                                        max="10" 
+                                                        step="0.1" 
+                                                        placeholder="N/A"
+                                                        value={ratingInput}
+                                                        onChange={(e) => setRatingInput(e.target.value)}
+                                                        className="rating-number-input"
+                                                    />
+                                                    <input 
+                                                        type="range" 
+                                                        min="1" 
+                                                        max="10" 
+                                                        step="0.1" 
+                                                        value={ratingInput || 5.0} 
+                                                        onChange={(e) => setRatingInput(e.target.value)}
+                                                        className="rating-slider-input"
+                                                    />
+                                                </div>
+                                            </div>
+                                        </div>
 
-                                <button 
-                                    onClick={handleSaveReview}
-                                    className="save-review-btn"
-                                >
-                                    Save Review & Rating
-                                </button>
+                                        <div className="notes-input-container">
+                                            <label className="input-label">Review Notes</label>
+                                            <textarea 
+                                                placeholder="Add your thoughts about the movie..."
+                                                value={notesInput}
+                                                onChange={(e) => setNotesInput(e.target.value)}
+                                                rows="3"
+                                                className="notes-textarea"
+                                            />
+                                        </div>
+
+                                        <button 
+                                            onClick={handleSaveReview}
+                                            className="save-review-btn"
+                                        >
+                                            Save Review & Rating
+                                        </button>
+                                    </div>
+                                )}
                             </div>
                         )}
                     </div>

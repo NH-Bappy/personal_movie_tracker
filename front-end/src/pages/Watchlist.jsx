@@ -112,8 +112,8 @@ const Watchlist = () => {
                                                     <div className="watchlist-card-metadata-row">
                                                         <span className="watchlist-card-meta">{releaseYear}</span>
                                                         {(movie.status === 'COMPLETE' || movie.status === 'DROPPED') && movie.rating !== null && movie.rating !== undefined && (
-                                                            <span className={`watchlist-card-rating-badge ${movie.rating >= 7.5 ? 'high-anim' : movie.rating <= 4.5 ? 'low-anim' : 'neutral-anim'}`}>
-                                                                ★ {Number(movie.rating).toFixed(1)}
+                                                            <span className={`watchlist-card-rating-badge ${movie.rating >= 7.5 ? 'high-static' : movie.rating <= 4.5 ? 'low-static' : 'neutral-static'}`}>
+                                                                {movie.rating >= 7.5 ? '⭐' : movie.rating <= 4.5 ? '😢' : '👍'} {Number(movie.rating).toFixed(1)}
                                                             </span>
                                                         )}
                                                     </div>
