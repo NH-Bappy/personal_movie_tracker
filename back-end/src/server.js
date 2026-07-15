@@ -12,7 +12,7 @@ app.use(cors({
         process.env.CLIENT_URL,
         'http://localhost:5173',
         'http://127.0.0.1:5173',
-        'https://your-app.vercel.app'
+        'https://personal-movie-tracker-absm.vercel.app'
     ],
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],

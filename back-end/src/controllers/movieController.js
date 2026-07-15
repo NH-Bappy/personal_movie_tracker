@@ -2,7 +2,7 @@ const { prisma } = require("../config/db");
 
 const findOrCreateMovie = async (req, res) => {
     try {
-        const { id, title, overview, releaseYear, genres, runtime, posterUrl } = req.body;
+        const { id, title, overview, releaseYear, genres, runtime, posterUrl } = req.body || {};
 
         if (!title || !releaseYear) {
             return res.status(400).json({ error: "Title and releaseYear are required" });
