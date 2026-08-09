@@ -6,6 +6,19 @@ The application automatically resolves TMDB movie metadata and synchronizes it w
 
 ---
 
+## 📸 Screenshots
+
+### 🏠 Home Page (`/`)
+![Home Page](./screenshots/home.png)
+
+### 📋 Watchlist Page (`/watchlist`)
+![Watchlist Page](./screenshots/watchlist.png)
+
+### ⭐ Favorites Page (`/Favorites`)
+![Favorites Page](./screenshots/favorites.png)
+
+---
+
 ## 🚀 Features
 
 ### 1. User Authentication
