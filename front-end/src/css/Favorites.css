@@ -1,44 +1,67 @@
 .favorites {
-  padding: 2rem;
+  padding: 0;
   width: 100%;
   box-sizing: border-box;
 }
 
 .favorites h2 {
-  margin-bottom: 2rem;
-  text-align: center;
-  font-size: 2.5rem;
+  margin-bottom: 1.75rem;
+  text-align: left;
+  font-size: 2.2rem;
+  font-weight: 800;
   color: #ffffff;
-  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+  background: linear-gradient(135deg, #ffffff 0%, #a5a5a5 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
 .favorites-empty {
   text-align: center;
-  padding: 4rem 2rem;
-  background-color: rgba(255, 255, 255, 0.05);
-  border-radius: 12px;
-  margin: 2rem auto;
-  max-width: 600px;
+  padding: 3rem 1.5rem;
+  background-color: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  margin: 3rem auto;
+  max-width: 550px;
+  width: 100%;
 }
 
 .favorites-empty h2 {
-  margin-bottom: 1rem;
-  font-size: 2rem;
-  color: #e50914;
+  margin-bottom: 0.75rem;
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #ff3366;
+  -webkit-text-fill-color: initial;
 }
 
 .favorites-empty p {
-  color: #999;
-  font-size: 1.2rem;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 1.05rem;
   line-height: 1.6;
 }
 
+@media (max-width: 768px) {
+  .favorites h2 {
+    font-size: 1.75rem;
+    margin-bottom: 1.25rem;
+  }
+  .favorites-empty {
+    padding: 2rem 1rem;
+    margin: 1.5rem auto;
+  }
+  .favorites-empty h2 {
+    font-size: 1.4rem;
+  }
+  .favorites-empty p {
+    font-size: 0.95rem;
+  }
+}
 
 /* Animation for new favorites being added */
 @keyframes fadeIn {
   from {
     opacity: 0;
-    transform: translateY(20px);
+    transform: translateY(15px);
   }
   to {
     opacity: 1;
@@ -49,4 +72,5 @@
 .movies-grid > * {
   animation: fadeIn 0.3s ease-out forwards;
 }
+
 

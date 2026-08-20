@@ -544,4 +544,66 @@
     border: 1px solid rgba(16, 185, 129, 0.35);
 }
 
+/* Mobile & Tablet Responsive Enhancements */
+@media (max-width: 768px) {
+    .movie-details-container {
+        padding: 1.5rem 1rem;
+        gap: 2rem;
+    }
+
+    .movie-title-section h1 {
+        font-size: 2.2rem;
+    }
+
+    .movie-tagline {
+        font-size: 1.05rem;
+    }
+
+    .movie-overview-section p {
+        font-size: 1rem;
+    }
+}
+
+@media (max-width: 600px) {
+    .movie-details-poster {
+        max-width: 220px;
+        border-radius: 12px;
+    }
+
+    .movie-title-section h1 {
+        font-size: 1.7rem;
+    }
+
+    .movie-meta-row {
+        gap: 0.6rem 0.8rem;
+    }
+
+    .meta-divider {
+        display: none;
+    }
+
+    .status-select-container {
+        width: 100%;
+    }
+
+    .review-section {
+        padding: 1rem;
+        border-radius: 12px;
+    }
+
+    .review-row {
+        gap: 1rem;
+    }
+
+    .rating-input-container {
+        width: 100%;
+    }
+
+    .save-review-btn {
+        width: 100%;
+        text-align: center;
+    }
+}
+
+
 
