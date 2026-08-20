@@ -1,15 +1,20 @@
 .navbar {
-  background-color: #000000;
+  background-color: #0c0c0e;
   padding: 1rem 2rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .navbar-brand {
-  font-size: 1.6rem;
-  font-weight: bold;
+  font-size: 1.5rem;
+  font-weight: 800;
+  letter-spacing: -0.5px;
 }
 
 .brand-link {
@@ -25,56 +30,69 @@
   width: 38px;
   border-radius: 8px;
   object-fit: cover;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.menu-toggle-btn {
+  display: none;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #ffffff;
+  font-size: 1.25rem;
+  padding: 0.5rem;
+  border-radius: 8px;
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.menu-toggle-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.3);
 }
 
 .navbar-links {
   display: flex;
-  gap: 2rem;
+  align-items: center;
+  gap: 1.5rem;
 }
 
 .nav-link {
-  font-size: 1rem;
-  padding: 0.5rem 1rem;
-  border-radius: 4px;
-  transition: background-color 0.2s;
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.8);
+  padding: 0.5rem 0.85rem;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+  text-decoration: none;
 }
 
 .nav-link:hover {
-  background-color: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+  background-color: rgba(255, 255, 255, 0.08);
 }
 
-@media (max-width: 768px) {
-  .navbar {
-    padding: 1rem;
-  }
-
-  .navbar-brand {
-    font-size: 1.2rem;
-  }
-
-  .navbar-links {
-    gap: 1rem;
-  }
-
-  .nav-link {
-    padding: 0.5rem;
-  }
+.user-nav-group,
+.auth-nav-group {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
 }
 
 .user-greet {
   color: rgba(255, 255, 255, 0.7);
-  font-size: 0.95rem;
-  align-self: center;
+  font-size: 0.9rem;
+  font-weight: 500;
 }
 
 .logout-btn {
   background: transparent;
-  border: 1px solid rgba(255, 51, 102, 0.4);
+  border: 1px solid rgba(255, 51, 102, 0.5);
   color: #ff3366;
   font-size: 0.9rem;
   font-weight: 600;
-  padding: 0.35rem 0.85rem;
+  padding: 0.4rem 0.9rem;
   border-radius: 6px;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -84,4 +102,82 @@
   background: #ff3366;
   color: #ffffff;
   border-color: #ff3366;
+  box-shadow: 0 4px 12px rgba(255, 51, 102, 0.3);
+}
+
+/* Mobile Responsive Navigation Drawer */
+@media (max-width: 768px) {
+  .navbar {
+    padding: 0.85rem 1.25rem;
+  }
+
+  .navbar-brand {
+    font-size: 1.3rem;
+  }
+
+  .menu-toggle-btn {
+    display: flex;
+  }
+
+  .navbar-links {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background-color: rgba(12, 12, 14, 0.96);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    flex-direction: column;
+    align-items: stretch;
+    padding: 1.25rem;
+    gap: 0.75rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.7);
+  }
+
+  .navbar-links.mobile-open {
+    display: flex;
+    animation: fadeInDown 0.25s ease-out forwards;
+  }
+
+  .nav-link {
+    text-align: center;
+    padding: 0.75rem 1rem;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+    font-size: 1rem;
+  }
+
+  .user-nav-group,
+  .auth-nav-group {
+    flex-direction: column;
+    gap: 0.75rem;
+    width: 100%;
+    margin-top: 0.5rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .user-greet {
+    text-align: center;
+  }
+
+  .logout-btn {
+    width: 100%;
+    padding: 0.75rem;
+    font-size: 1rem;
+  }
+}
+
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
